@@ -7,8 +7,16 @@ In this work, FC and PWP were determined as the maximum and minimum soil moistur
 
 The ratio between the soil water accessible at a given time (ASW) and the total transpirable soil water (TTSW) of a given crop in a given soil is called the fraction of transpirable soil water (FTSW). FTSW is used for irrigation scheduling in agriculture.
 
+Evapotranspiration (ET) is the amount of water that evaporates from the Earth and plant surface. Solar radiation, wind speed, temperature, and relative humidity all influence daily ET, and this effect is highly non-linear.
+
 # long term short term memory (LSTM)
  LSTM is a special type of RNN  designed for processing sequential data. 
+ 
+ ## Usage 
+ 
+ The FWST model uses historical data, including relative humidity, ET, precipitation, month, and day of the month to predict FSTW for the next few days.
+
+The Lisbon test set did not include ET, so we used the ET LSTM model to predict ET for that set.
 
 ## Installation
 The model depends on the following Python packages:
