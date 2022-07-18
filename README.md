@@ -11,7 +11,7 @@ Evapotranspiration (ET) is the amount of water that evaporates from the Earth an
 
 
 
-## long short term memory (LSTM)
+## Long short term memory (LSTM)
  LSTM is a special type of RNN  designed for processing sequential data. 
  
 ## Feature Selection and data preprocessing
