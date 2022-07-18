@@ -9,10 +9,23 @@ The ratio between the soil water accessible at a given time (ASW) and the total 
 
 Evapotranspiration (ET) is the amount of water that evaporates from the Earth and plant surface. Solar radiation, wind speed, temperature, and relative humidity all influence daily ET, and this effect is highly non-linear.
 
+
+
 # long term short term memory (LSTM)
  LSTM is a special type of RNN  designed for processing sequential data. 
  
- ## Usage 
+## Feature Selection and data preprocessing
+
+1-the missing  data were filled using the moving average method. 
+
+2-The other preprocessing  involves the normalization.
+
+3- The permutation Feature Importance technique was used to calculate the importance of the feature. The training set for this method is used to train a model, and the validation set is used to measure the increase in prediction error after a feature is permuted in the validation set, destroying the link between the feature and the true outcome. Since the model depends on the feature for prediction in this scenario, a feature is considered "important" if permuting its values results in an increase in model error. The feature with the highest importance (in this case, ET) was selected as the main independent variable. Then, the FEATURES were added to the group of independent variables one by one in order of importance, and the VIF value for this group of variables was calculated.
+The variable is retained as a predictor if the VIF value is below a threshold; otherwise, it is removed from the group. After these processes, the historical data were selected as inputs to the FTSW prediction model, which included the month of the  month, day, RH (min) , VPD (min), precipitation, and daily ET. Since VPD (min) is not present in the Lisbon dataset, a model without this variable was created to evaluate the performance of the model on the test set. 
+
+
+
+## Usage 
  
  The FWST model uses historical data, including relative humidity, ET, precipitation, month, and day of the month to predict FSTW for the next few days.
 
