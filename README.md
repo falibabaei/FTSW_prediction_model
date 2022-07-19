@@ -62,7 +62,7 @@ FTWS_test_n_days_prediction.py: Evaluate the model trained by FTWS_train_n_days_
 
 FTWS_train_one_days_prediction.py: prediction of one day FTWS using n days of climate data.
 
-FTWS_test_one_days_prediction.py: Evaluate the model trained by FTWS_train_one_days_prediction.py.
+FTWS_test.py: Evaluate the model trained by FTWS_train_one_days_prediction.py.
 
 Eto_training.py: Predict ETo for one day using n days of climate data.
 
