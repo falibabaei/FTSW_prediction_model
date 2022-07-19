@@ -1,0 +1,25 @@
+
+import tensorflow as tf
+import hayperparameters_FTSW as params
+
+def creat_Lstm(X_train):
+    x=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
+    for i in range (params.num_lstm_layers-1):
+        x=tf.keras.layers.Bidirectional(layers.LSTM(params.hidden_units, 
+                                                return_sequences=True, activation='relu', name='lstm1'))(x)
+        x=layers.Dropout(params.dropout_size)(x)
+    if params.seq_len==params.output_len:    
+         x=tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(params.hidden_units,#,recurrent_dropout=dropout_size, 
+                                      return_sequences=True,activation='relu',name='lstm2'))(x)
+    else :
+        x=tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(params.hidden_units,#,recurrent_dropout=dropout_size, 
+                                      return_sequences=False,activation='relu',name='lstm2'))(x)
+        x=                                 
+
+    x=layers.Dropout(params.dropout_size)(x)
+    output =tf.keras.layers.Dense(params.n_out, name='dense')(x)
+    
+    model =tf.keras.models.Model(inputs=input1, outputs=output)
+    opt = tf.keras.optimizers.Adam(learning_rate=params.lr,params.decay=decay)
+    model.compile(optimizer=opt, loss='mse', metrics=["RootMeanSquaredError", R_squared])
+    return model
