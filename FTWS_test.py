@@ -70,21 +70,11 @@ data2=np.concatenate((X_train_reshape,yhat_reshape),axis=1)
 data2=scaler.inverse_transform(data2)
 inv_yhat=data2[:len(Y),-n_out]
     
+#Calculate the metrices
 
+print('RMSE=',rmse(Y,inv_yhat))
 
-
-
-
-y_mean=np.array([np.mean(Y) for i in range(len(Y))])
-mean_error=((mean_squared_error(Y,y_mean)))
-
-mse=((mean_squared_error(Y,inv_yhat)))
-
-r2=1-(mse/mean_error)
-print(r2)
-
-print(np.sqrt(mean_squared_error(Y,inv_yhat)))
-df.columns
+print('R-square=',r_square(Y,inv_yhat))
 
 #plot the true valye vs. predicted value
 fig, ax = plt.subplots(figsize=(5, 4))
