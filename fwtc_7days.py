@@ -19,7 +19,7 @@ import tensorflow as tf
 form  Some_usfull_classes import data_preprocessing, data_split, r_square,rmse 
 #hyperparameters
 seq_len=7 #(LSTM look back for prediction ET)
-out_len=1 #(number of days that we predict the ET for them)
+out_len=7 #(number of days that we predict the ET for them)
 Batch_size=40#50#40 #128
 
 Epoch=250
