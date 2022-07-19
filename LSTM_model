@@ -14,7 +14,7 @@ def creat_Lstm(X_train):
     else :
         x=tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(params.hidden_units,#,recurrent_dropout=dropout_size, 
                                       return_sequences=False,activation='relu',name='lstm2'))(x)
-        x=                                 
+        x=tf.keras.layers.RepeatVector(params.output_len)                                
 
     x=layers.Dropout(params.dropout_size)(x)
     output =tf.keras.layers.Dense(params.n_out, name='dense')(x)
