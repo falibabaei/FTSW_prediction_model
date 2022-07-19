@@ -71,7 +71,7 @@ logdir =f'D:/SM_estimation_paper/logs\\swc1_diario_biodagro-{int(time.time())}'
 if  not os.path.exists( logdir ) : 
     os.mkdir ( logdir ) 
 
-model=creat_Lstm()
+model=LSTM_model.creat_Lstm()
 model.summary()
 
 tensorboard=tf.keras.callbacks.TensorBoard(
