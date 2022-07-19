@@ -1,36 +1,27 @@
 
 
 import pandas as pd
-
 import numpy as np
 import os
 from collections import deque
 import random
-from tqdm import tqdm
+import matplotlib.pyplot as plt
+import time
 
 from sklearn.utils import shuffle
-
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error,r2_score
-
-import pandas as pd
-
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler,StandardScaler,PowerTransformer
-import time
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+
 import tensorflow as tf
-from tensorflow.keras import layers
 import seaborn as sns
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
 
-
+#hyperparameters
 seq_len=7 #(number of days for predicting ET)
 Batch_size=63#50#40 #128
-
 Epoch=500
 lr= 0.00089#0.00025856#0.0003968 #2e-3
 decay= 0.00094#0.0003011 #0.0003456#1e-3
@@ -40,19 +31,16 @@ n_out=1
 NAME = f"swc1_diario_biodagro-{int(time.time())}.h5"
 
 dir_='D:/SM_estimation_paper'
-
+#open the dataset
 df= pd.read_csv(os.path.join(dir_,'Etotrain.csv'), encoding= 'unicode_escape', index_col='time')
 
-df.dropna(inplace=True)
+#drop the columns we do not need
 df.drop([ 'dev_point (avg)',
        'dev_poin(Minuto)', 'SR (avg)', 'VPD (avg)', 'VPD (Minuto)','LW (time)','VS (max)', 'VS (max).1','SM (20cm)', 'SM (40cm)',
        'SM (60cm)', 'SM (80cm)','summand' , 'WS (avg)','Precipitation','FTSW', 'tem(max)', 'tem (Minuto)',
        
           'RH (max)',
-       'RH (Minuto)' ], axis=1,inplace=True)#,'RH (max)', 'RH (Minuto)', 'tem(max)', 'tem (Minuto)',
-       #'Daily ET0 [mm]' ,'VPD (Minuto)',  'VPD (avg)', 'RH (avg)',], axis=1,inplace=True)
-
-
+       'RH (Minuto)' ], axis=1,inplace=True)
 df.dropna(inplace=True)
 
 
@@ -73,7 +61,7 @@ def data_preprocessing(df):
 
 
 
-
+#splite the data for supervised learning
 
 def data_split(df):    
     sequential_data=[]
@@ -96,31 +84,23 @@ def data_split(df):
         Y.append(target)
     return np.array(X), np.array(Y)   
 
-
+#define the metrices
 def r_square(y_true, y_pred):
     y_true= tf.convert_to_tensor(y_true, np.float32)
-  #  from keras import backend as K
     SS_res = tf.keras.backend.sum(tf.keras.backend.square( y_true-y_pred ))
     SS_tot = tf.keras.backend.sum(tf.keras.backend.square( y_true - tf.keras.backend.mean(y_true) ) )
     return ( 1 - SS_res/(SS_tot + tf.keras.backend.epsilon()) )
-def R_squared(y, y_pred):
-  residual = tf.reduce_sum(tf.square(tf.subtract(y, y_pred)))
-  total = tf.reduce_sum(tf.square(tf.subtract(y, tf.reduce_mean(y))))
-  r2 = tf.subtract(1.0, tf.math.truediv(residual, total))
-  return r2
+
 def rmse(y_true, y_pred):
     return tf.keras.backend.sqrt(tf.keras.backend.mean(tf.keras.backend.square(y_pred - y_true), axis=-1))
 
 
 
-
+#define the model
 def creat_Lstm():
     input1=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
     x=tf.keras.layers.Bidirectional(layers.LSTM(hidden_units, return_sequences=True, activation='relu'))(input1)
-    #,recurrent_dropout=dropout_size, 
-                                     
-                                         #,name='lstm1')))(input1)
-   # x=layers.Activation(hard_swish)(x)
+   
     x=layers.Dropout(dropout_size)(x)
     x=tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(hidden_units,#,recurrent_dropout=dropout_size, 
                                       return_sequences=False,activation='relu'))(x)#)))(dropout)
@@ -137,13 +117,6 @@ def creat_Lstm():
    
 #split the data into the input of the model and true value of the yield
 X_train,y_train=data_split(df)
-
-
-#X=np.concatenate((X,X2), axis=0)
-#Y=np.concatenate((Y,Y2), axis=0)
-#indices = np.arange(len(X))
-#X_train, x_test, y_train, y_test,ind1,ind2 = train_test_split(X, Y,indices, test_size=0.2, random_state=42)
-
 
 X_train, y_train = shuffle(X_train, y_train )
 
@@ -165,14 +138,11 @@ X_train_minmax=data.values[:,:-n_out]
 y_train=data.values[:len(y_train),-n_out] 
 X_train=np.reshape(X_train_minmax,(X_train.shape[0],X_train.shape[1],X_train.shape[2]))
 
-#X_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
-
-
-
-
 
 model=creat_Lstm()
 model.summary()
+
+#define the checkpoin, early stoping and tensorboard
 tensorboard=tf.keras.callbacks.TensorBoard(
     log_dir='D:/SM_estimation_paper/logs')
 checkpoint = tf.keras.callbacks.ModelCheckpoint(NAME, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
@@ -186,6 +156,8 @@ Early=tf.keras.callbacks.EarlyStopping(
     restore_best_weights=True,
 )
 #model.load_weights('swc1_diario_biodagro-1652106970.h5')#('swc1_diario_biodagro-1649866152.h5')
+
+#train the model
 history=model.fit(X_train,y_train,batch_size=Batch_size,
                          epochs=Epoch, 
                          #validation_data=(x_val,y_val),
@@ -194,23 +166,13 @@ history=model.fit(X_train,y_train,batch_size=Batch_size,
                          callbacks=[Early,checkpoint,tensorboard]) 
 
 
-
-#------------------------
-#SWC40
-#inputs:'tem(avg)', 'SR (avg)', 'RH (avg)', 'Precipitation', 'SM (20cm)',
-#output:  'SM (40cm)'
-#model:swc1_diario_biodagro-1648641160.h5
-
-#-------------------summand-------------------
-#swc1_diario_biodagro-1649667230.h5
-
+#open the test file
 df_test= pd.read_csv(os.path.join(dir_,'ETOtestset.csv'), index_col='time')
 
 df_test.dropna(inplace=True)
 df_test.drop([ 'Precipitation', 'LW (time)', 'WS (avg)', 'VS (max)',
 'VS (max).1','ETo calculator','tem(max)', 'tem (Minuto)', 'RH (max)', 'RH (Minuto)'
-        ], axis=1,inplace=True)#,'RH (max)', 'RH (Minuto)', 'tem(max)', 'tem (Minuto)',
-       #'Daily ET0 [mm]' ,'VPD (Minuto)',  'VPD (avg)', 'RH (avg)',], axis=1,inplace=True)
+        ], axis=1,inplace=True)
 
 
 df.dropna(inplace=True)
@@ -260,17 +222,6 @@ r=R_squared(inv_y,inv_yhat)
 print(np.sqrt(mean_squared_error(inv_y,inv_yhat)))
 print(np.sqrt(mean_squared_error(df_test['Daily ET0 [mm]'],df_test['ETo calculator'])))
 
-
-
-fig, ax = plt.subplots(figsize=(20, 10))
-
-# Add x-axis and y-axis.
-ax.plot(inv_y,
-           color='purple', label='ilha1')
-ax.plot(
-         inv_yhat,
-           label='ilha1')
-plt.savefig(f'D:/SM_estimation_paper/sm_plots/ftsw_ilha1_VPDmin_RHmin_pre_ETo_Standars.jpg' ,dpi=500)
 
 
 fig, ax = plt.subplots(figsize=(5, 4))
