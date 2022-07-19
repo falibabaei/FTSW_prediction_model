@@ -1,6 +1,8 @@
 
 import tensorflow as tf
 import hayperparameters_FTSW as params
+#import hayperparameters_ET0 as params #use it when we want to predict Et0
+
 
 def creat_Lstm(X_train):
     x=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
