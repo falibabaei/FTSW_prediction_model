@@ -1,0 +1,54 @@
+## normalize the dataset 
+
+
+def data_preprocessing(df):
+    #normilized the data
+    values=df.values
+    scaler=StandardScaler()
+    
+    values_normal=scaler.fit_transform(values)
+   
+  
+    df=pd.DataFrame(values_normal, columns= df.columns, index=df.index)
+    return df,scaler
+
+## splite the data for supervised learning (For the last output_len days)
+  
+ def data_split(df,seq_len, output_len, n_out):    
+    sequential_data=[]
+    prev_day = deque(maxlen=seq_len)
+    y=deque(maxlen=output_len)
+    
+    for i in df.values:
+        prev_day.append([n for n in i[:-n_out]])
+        y.append(i[-n_out:])
+        
+        if len(prev_day)==seq_len:
+            sequential_data.append([np.array(prev_day),np.array(y)])
+            
+ 
+  #  random.shuffle(sequential_data)
+        
+    X=[]             
+    Y=[]
+    
+    for seq , target in sequential_data:
+        X.append(seq)
+        Y.append(target)
+    return np.array(X), np.array(Y)      
+
+#r-square metric
+
+def r_square(y_true, y_pred):
+    y_true= tf.convert_to_tensor(y_true, np.float32)
+    SS_res = tf.keras.backend.sum(tf.keras.backend.square( y_true-y_pred ))
+    SS_tot = tf.keras.backend.sum(tf.keras.backend.square( y_true - tf.keras.backend.mean(y_true) ) )
+    return ( 1 - SS_res/(SS_tot + tf.keras.backend.epsilon()) )
+    
+    
+ 
+#rmse metric
+def rmse(y_true, y_pred):
+    return tf.keras.backend.sqrt(tf.keras.backend.mean(tf.keras.backend.square(y_pred - y_true), axis=-1))   
+
+    
