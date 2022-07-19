@@ -16,7 +16,7 @@ from pickle import load
 
 from Some_usfull_classes import data_preprocessing, data_split,r_square
 
-import hyperparameters_FTSW as param
+import hyperparameters_FTSW as params
 register_matplotlib_converters()
 
 
@@ -37,7 +37,7 @@ df.dropna(inplace=True)
 scaler = load(open('scaler.pkl', 'rb'))
 
 
- X,Y=data_split(df, seq_len, output_len, n_out)
+ X,Y=data_split(df, params.seq_len, params.output_len, params.n_out)
 
 
 X_train_reshape=np.reshape(X,(X.shape[0]*X.shape[1],X.shape[2]))
