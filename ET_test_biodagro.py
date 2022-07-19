@@ -12,11 +12,11 @@ yamnet_base = 'C:/Users/Asus/.spyder-py3/gitlab'
 sys.path.append(yamnet_base)
 
 import preprocessing as pro
-import hyperparameters as param
+import hyperparameters_ET0 as param
+from Some_usfull_classes import data_preprocessing, data_split, r_square,rmse
 
 
-n_out=1
-seq_len=7
+
 dir_='D:/SM_estimation_paper/2003_mean.csv'
 df=pd.read_csv(dir_, encoding= 'unicode_escape')
 df.drop([ 'time',
@@ -27,17 +27,9 @@ df.drop([ 'time',
       ], axis=1,inplace=True)
 
 
-X1,Y1=pro.data_split_one_day_ahead(df)
-X=[]
-Y=[]
-def min(a):
-    return np.isnan(np.min(a))
+X,Y=data_split(df)
 
-# removed the missing data 
-for i , j in zip(X1,Y1):
-    if min(j)!=True:
-        X.append(i)
-        Y.append(j)
+
 
 X=np.array(X)
 Y=np.array(Y)        
@@ -57,8 +49,8 @@ scaler=load(open('scaler_eto.pkl', 'rb'))
 data=scaler.transform(data)
 
 #Again reshape the normalized data into the appropriate shape for input and output of the model
-X_train_minmax=data[:,:-n_out]
-y=data[:len(Y),-n_out] 
+X_train_minmax=data[:,:-params.n_out]
+y=data[:len(Y),-params.n_out] 
 x=np.reshape(X_train_minmax,(X.shape[0],X.shape[1],X.shape[2]))
     
 # FWST: swc1_diario_biodagro-1651831879.h5'
@@ -75,7 +67,7 @@ data2=np.concatenate((X_train_reshape,yhat_reshape),axis=1)
 
 
 data2=scaler.inverse_transform(data2)
-inv_yhat=data2[:len(Y),-n_out]
+inv_yhat=data2[:len(Y),-0params.n_out]
     
 
 df1=pd.DataFrame()
