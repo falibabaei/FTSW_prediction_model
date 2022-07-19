@@ -5,7 +5,8 @@ import hayperparameters_FTSW as params
 
 
 def creat_Lstm(X_train):
-    x=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
+    input1=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
+    x=input1
     for i in range (params.num_lstm_layers-1):
         x=tf.keras.layers.Bidirectional(layers.LSTM(params.hidden_units, 
                                                 return_sequences=True, activation='relu', name='lstm1'))(x)
