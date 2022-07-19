@@ -2,21 +2,16 @@
 
 
 import pandas as pd
-
 import numpy as np
 import os
-from collections import deque
 import random
 import time
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pickle import dump
 
 
 
 from sklearn.utils import shuffle
 from sklearn.metrics import mean_squared_error,r2_score
-from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn.model_selection import train_test_split
 
 
@@ -26,7 +21,9 @@ from tensorflow.keras import layers
 from Some_usfull_classes import data_preprocessing, data_split, r_square,rmse
 
 #hyperparameters were selected by bayesian optimization
-seq_len=7#(number of days for predicting ET)
+seq_len=7#(number of lookback of the LSTM model for predicting FSTW)
+output_len#(number of days that LSTM model predict FSTW for them)
+n_out=1 #(number of variables we want to predict with LSTM model)
 Batch_size=40#50#40 #128
 
 Epoch=210
@@ -34,7 +31,7 @@ lr= 0.003968#0.00025856#0.0003968 #2e-3
 decay= 0.003456#0.0003011 #0.0003456#1e-3
 hidden_units=158#190#158#256# #number of hidden neurons in LSTM layer 32,64,128,256,
 dropout_size=0.09313# 0.17521#0.09313
-n_out=1 
+ 
 NAME = f"swc1_diario_biodagro-{int(time.time())}.h5"
 
 dir_='D:/SM_estimation_paper'
@@ -75,13 +72,7 @@ def creat_Lstm():
 
    
 #split the data into the input of the model and true value of the yield
-X,Y=data_split(df)
-
-
-
-indices = np.arange(len(X))
-X_train, x_test, y_train, y_test,ind1,ind2 = train_test_split(X, Y,indices, test_size=0.2, random_state=42)
-
+X_train,y_train =data_split(df, seq_len,output_len, n_out)
 
 X_train, y_train = shuffle(X_train, y_train )
 
@@ -102,7 +93,7 @@ X_train_minmax=data.values[:,:-n_out]
 y_train=data.values[:len(y_train),-n_out] 
 X_train=np.reshape(X_train_minmax,(X_train.shape[0],X_train.shape[1],X_train.shape[2]))
 
-#X_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
+X_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
 
 
 
@@ -130,8 +121,7 @@ Early=tf.keras.callbacks.EarlyStopping(
 
 history=model.fit(X_train,y_train,batch_size=Batch_size,
                          epochs=Epoch, 
-                         #validation_data=(x_val,y_val),
-                         validation_split=0.2,
+                         validation_data=(x_val,y_val),
                          verbose=2, 
                          callbacks=[checkpoint,tensorboard]) 
 
