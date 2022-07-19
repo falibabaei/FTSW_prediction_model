@@ -53,9 +53,8 @@ X_train_minmax=data[:,:-params.n_out]
 y=data[:len(Y),-params.n_out] 
 x=np.reshape(X_train_minmax,(X.shape[0],X.shape[1],X.shape[2]))
     
-# FWST: swc1_diario_biodagro-1651831879.h5'
 #load the trained model
-model=tf.keras.models.load_model('swc1_diario_biodagro-1652108950.h5',  compile=False)
+model=tf.keras.models.load_model('et0_biodagro-1652108950.h5',  compile=False)
 
 #prediction of the model
 yhat = model.predict(x)
@@ -67,7 +66,7 @@ data2=np.concatenate((X_train_reshape,yhat_reshape),axis=1)
 
 
 data2=scaler.inverse_transform(data2)
-inv_yhat=data2[:len(Y),-0params.n_out]
+inv_yhat=data2[:len(Y),-params.n_out]
     
 
 df1=pd.DataFrame()
