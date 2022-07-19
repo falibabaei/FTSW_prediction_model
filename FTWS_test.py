@@ -32,9 +32,7 @@ df.drop([
               'H.R. 80-90 (h)',
               'H.R. <40 (h)','Precip max (mm)', 'Humect','Temp -10cm ',
              'ET0model','eto', 'Temp max ', 'Temp min ', 'H.R. max ', 'H.R. min'
-      ], axis=1,inplace=True)#,'RH (max)', 'RH (Minuto)', 'tem(max)', 'tem (Minuto)',
-       #'Daily ET0 [mm]' ,'VPD (Minuto)',  'VPD (avg)', 'RH (avg)',], axis=1,inplace=True)
-
+      ], axis=1,inplace=True)
 
 scaler = load(open('scaler.pkl', 'rb'))
 
@@ -110,18 +108,8 @@ inv_yhat=data2[:len(Y),-n_out]
     
 
 
-def R_squared(y, y_pred):
-  residual = tf.reduce_sum(tf.square(tf.subtract(y, y_pred)))
-  total = tf.reduce_sum(tf.square(tf.subtract(y, tf.reduce_mean(y))))
-  r2 = tf.subtract(1.0, tf.math.truediv(residual, total))
-  return r2
-def rmse(y_true, y_pred):
-    return tf.keras.backend.sqrt(tf.keras.backend.mean(tf.keras.backend.square(y_pred - y_true), axis=-1))
 
 
-#r2_squer and mean squared error between the true values and the prediction values by model
-#r=R_squared(Y,inv_yhat)
-#print(f'R_square={r}')       
 
 y_mean=np.array([np.mean(Y) for i in range(len(Y))])
 mean_error=((mean_squared_error(Y,y_mean)))
@@ -158,111 +146,3 @@ ax.set_title(f"Alenquer, Lisboa (ETo from ETo calculator) ")  # Add a title to t
 
 
 
-
-
-import seaborn as sns
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
-import numpy as np
-
-#import earthpy as et
-
-# Handle date time conversions between pandas and matplotlib
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
-
-
-'''
-fig, ax = plt.subplots(figsize=(20, 10))
-
-# Add x-axis and y-axis
-ax.plot(df.index.values,
-           df['eto'],
-           color='purple', label='Calculator')
-ax.plot(df.index.values,
-           df['ET0model'], label='LSTM'
-           )
-    
-plt.xticks(rotation='vertical')
-# Set title and labels for axes
-ax.set(xlabel="Time step",
-ylabel="ET0",
-title=f" Estimation of ET0 for Quinta de Pancas")
-
-ax.legend();
-plt.savefig(f'D:/SM_estimation_paper/sm_plots/ET0-modle-cal_test2.pdf',format='pdf' ,dpi=500)
-   # plt.show()
-
-
-
-
-dir_='D:/SM_estimation_paper'
-df_ilha2=pd.read_csv(os.path.join(dir_,'summand_ilha2_daily.csv'), encoding= 'unicode_escape', index_col='time')
-
-
-
-
-df_ilha2.drop([ 
-        'LW (time)' ,'dev_point (avg)',
-      'VS (max)',
-       'VS (max).1','WS (avg)','dev_poin(Minuto)','tem(max)','RH (max)',  
-     'RH (Minuto)',  'tem(avg)', 'SR (avg)', 'VPD (avg)','FTSW1',
-     'tem (Minuto)', 'VPD (Minuto)','summand','FTSW1'
-      ], axis=1,inplace=True)#,'RH (max)', 'RH (Minuto)', 'tem(max)', 'tem (Minuto)',
-       #'Daily ET0 [mm]' ,'VPD (Minuto)',  'VPD (avg)', 'RH (avg)','summand'], axis=1,inplace=True)
-
-df_ilha2.dropna( inplace=True)
-X,Y=data_split(df_ilha2)
-
-
-
-
-
-
-
-
-
-
-x_test_reshape=np.reshape(X,(X.shape[0]*X.shape[1],X.shape[2]))
-
-
-
-m=np.zeros((X.shape[0]*X.shape[1]-len(Y),1))
-y_test_reshape=np.concatenate((Y,m),axis=0).reshape(-1, 1)
-data1=np.concatenate((x_test_reshape,y_test_reshape),axis=1)
-
-data1=pd.DataFrame(data1)
-#convert the test set into a number between 0 and 1 using the Min_Max scaler from the training set
-data1_re=scaler.transform(data1)
-
-x_test1=data1_re[:,:-n_out]
-y_test1=data1_re[:len(Y),-n_out] 
-#reshape the test set into the appropriate shape for prediction
-x_test1=np.reshape(x_test1,(X.shape[0],X.shape[1],X.shape[2]))
-
-#prediction using trained model
-yhat = model.predict(x_test1)
-
-
-
-
-yhat_reshape=np.concatenate((yhat,m),axis=0)
-data2=np.concatenate((x_test_reshape,yhat_reshape),axis=1)
-#denormalize the prediction and true value
-data1=scaler.inverse_transform(data1_re)
-data2=scaler.inverse_transform(data2)
-inv_y=data1[:len(Y),-n_out]
-inv_yhat=data2[:len(Y),-n_out]
-    
-
-
-
-#r2_squer and mean squared error between the true values and the prediction values by model
-r=r_square(inv_y,inv_yhat)
-print(f'R_square={r}')       
-
-
-
-print(np.sqrt(mean_squared_error(inv_y,inv_yhat)))
-'''
