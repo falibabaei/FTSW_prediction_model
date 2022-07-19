@@ -19,19 +19,10 @@ import tensorflow as tf
 from tensorflow.keras import layers
 
 from Some_usfull_classes import data_preprocessing, data_split, r_square,rmse
+import LSTM_model
+import hyperparameters_FTSW as params
 
-#hyperparameters were selected by bayesian optimization
-seq_len=7#(number of lookback of the LSTM model for predicting FSTW)
-output_len#(number of days that LSTM model predict FSTW for them)
-n_out=1 #(number of variables we want to predict with LSTM model)
-Batch_size=40#50#40 #128
 
-Epoch=210
-lr= 0.003968#0.00025856#0.0003968 #2e-3
-decay= 0.003456#0.0003011 #0.0003456#1e-3
-hidden_units=158#190#158#256# #number of hidden neurons in LSTM layer 32,64,128,256,
-dropout_size=0.09313# 0.17521#0.09313
- 
 NAME = f"swc1_diario_biodagro-{int(time.time())}.h5"
 
 dir_='D:/SM_estimation_paper'
@@ -47,32 +38,11 @@ df.drop(['dev_point (avg)',
 df.dropna(inplace=True)
 
   
-def creat_Lstm():
-    input1=tf.keras.layers.Input(shape=(X_train.shape[1],X_train.shape[2]))
-    x=tf.keras.layers.Bidirectional(layers.LSTM(hidden_units, 
-                                                return_sequences=True, activation='relu', name='lstm1'))(input1)
-    #,recurrent_dropout=dropout_size, 
-                                     
-                                         #,name='lstm1')))(input1)
-   # x=layers.Activation(hard_swish)(x)
-    x=layers.Dropout(dropout_size)(x)
-    x=tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(hidden_units,#,recurrent_dropout=dropout_size, 
-                                      return_sequences=False,activation='relu',name='lstm2'))(x)#)))(dropout)
-   # x=layers.Activation(hard_swish)(x)
-    x=layers.Dropout(dropout_size)(x)
-   # danse=layers.Dense(256, activation='relu')(dropout)
-   # dropout=layers.Dropout(dropout_size)(danse)
-    output =tf.keras.layers.Dense(n_out, name='dense')(x)
-    
-    model =tf.keras.models.Model(inputs=input1, outputs=output)
-    opt = tf.keras.optimizers.Adam(learning_rate=lr,decay=decay)
-    model.compile(optimizer=opt, loss='mse', metrics=["RootMeanSquaredError", R_squared])
-    return model
 
 
    
 #split the data into the input of the model and true value of the yield
-X_train,y_train =data_split(df, seq_len,output_len, n_out)
+X_train,y_train =data_split(df, params.seq_len,params.output_len, params.n_out)
 
 X_train, y_train = shuffle(X_train, y_train )
 
@@ -89,8 +59,8 @@ data=pd.DataFrame(data)
 data, scaler=data_preprocessing(data)
 dump(scaler, open('scaler.pkl', 'wb'))
 #Again reshape the normalized data into the appropriate shape for input and output of the model
-X_train_minmax=data.values[:,:-n_out]
-y_train=data.values[:len(y_train),-n_out] 
+X_train_minmax=data.values[:,:-params.n_out]
+y_train=data.values[:len(y_train),-params.n_out] 
 X_train=np.reshape(X_train_minmax,(X_train.shape[0],X_train.shape[1],X_train.shape[2]))
 
 X_train, x_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
@@ -119,11 +89,11 @@ Early=tf.keras.callbacks.EarlyStopping(
 )
 #model.load_weights('swc1_diario_biodagro-1656680612.h5', by_name='True')#('swc1_diario_biodagro-1649866152.h5')
 
-history=model.fit(X_train,y_train,batch_size=Batch_size,
-                         epochs=Epoch, 
+history=model.fit(X_train,y_train,batch_size=params.Batch_size,
+                         epochs=params.Epoch, 
                          validation_data=(x_val,y_val),
                          verbose=2, 
-                         callbacks=[checkpoint,tensorboard]) 
+                         callbacks=[checkpoint,tensorboard,Early]) 
 
 
 
