@@ -1,14 +1,19 @@
+
+Import pandas as pd
+from collections import deque
+from sklearn.preprocessing import MinMaxScaler,StandardScaler
+
+import tensorflow as tf
+
+
+
+
+
 ## normalize the dataset 
-
-
 def data_preprocessing(df):
-    #normilized the data
     values=df.values
     scaler=StandardScaler()
-    
-    values_normal=scaler.fit_transform(values)
-   
-  
+    values_normal=scaler.fit_transform(values)  
     df=pd.DataFrame(values_normal, columns= df.columns, index=df.index)
     return df,scaler
 
@@ -27,7 +32,6 @@ def data_preprocessing(df):
             sequential_data.append([np.array(prev_day),np.array(y)])
             
  
-  #  random.shuffle(sequential_data)
         
     X=[]             
     Y=[]
