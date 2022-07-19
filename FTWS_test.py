@@ -9,20 +9,20 @@ import os
 from sklearn.metrics import mean_squared_error
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler,StandardScaler,PowerTransformer
-from sklearn.model_selection import train_test_split
-import tensorflow as tf
-import seaborn as sns
-from pandas.plotting import register_matplotlib_converters
-from collections import deque
 
-from sklearn.utils import shuffle
+import tensorflow as tf
+
 from pickle import load
+
+from Some_usfull_classes import data_preprocessing, data_split,r_square
 
 register_matplotlib_converters()
 
 n_out=1
 seq_len=7
+output_len
+
+#open test set
 dir_='D:/SM_estimation_paper/2003_mean.csv'
 df=pd.read_csv(dir_, encoding= 'unicode_escape',index_col=['time'],parse_dates=['time'],#date column using the parameter parse_dates
                                       )
@@ -33,48 +33,14 @@ df.drop([
               'H.R. <40 (h)','Precip max (mm)', 'Humect','Temp -10cm ',
              'ET0model','eto', 'Temp max ', 'Temp min ', 'H.R. max ', 'H.R. min'
       ], axis=1,inplace=True)
+df.dropna(inplace=True)
 
+#load  the scaler from training set
 scaler = load(open('scaler.pkl', 'rb'))
 
 
-def data_split(df):    
-    sequential_data=[]
-    prev_day = deque(maxlen=seq_len)
-    
-    for i in df.values:
-        prev_day.append([n for n in i[:-n_out]])
-        
-        if len(prev_day)==seq_len:
-            sequential_data.append([np.array(prev_day),i[-n_out:]])
-            
- 
-  #  random.shuffle(sequential_data)
-        
-    X=[]             
-    Y=[]
-    
-    for seq , target in sequential_data:
-        X.append(seq)
-        Y.append(target)
-    return np.array(X), np.array(Y)   
- 
+ X,Y=data_split(df, seq_len, output_len, n_out)
 
-X1,Y1=data_split(df)
-X=[]
-Y=[]
-def min(a):
-    return np.isnan(np.min(a))
-
-for i , j in zip(X1,Y1):
-    if min(j)!=True:
-       # print(j)
-        X.append(i)
-        Y.append(j)
-
-X=np.array(X)
-Y=np.array(Y)        
-#X, Y= shuffle(X,Y )        
-        
 
 X_train_reshape=np.reshape(X,(X.shape[0]*X.shape[1],X.shape[2]))
 #y_train=y_train.reshape(-1, 1)
@@ -85,16 +51,16 @@ y_train_reshape=Y_train_reshape.reshape(-1, 1)
 data=np.concatenate((X_train_reshape,y_train_reshape),axis=1)
 data=pd.DataFrame(data)
 
-#normalize the training set in order to use for training process
+#normalize the test set using scaler from training set
+
 data=scaler.transform(data)
-#data, scaler=data_preprocessing(data)
 
 #Again reshape the normalized data into the appropriate shape for input and output of the model
 X_train_minmax=data[:,:-n_out]
 y=data[:len(Y),-n_out] 
 x=np.reshape(X_train_minmax,(X.shape[0],X.shape[1],X.shape[2]))
     
-# FWST: swc1_diario_biodagro-1651831879.h5'
+# load the trained model
 model=tf.keras.models.load_model('swc1_diario_biodagro-1657190424.h5',  compile=False)
 
 yhat = model.predict(x)
@@ -122,16 +88,7 @@ print(r2)
 print(np.sqrt(mean_squared_error(Y,inv_yhat)))
 df.columns
 
-fig, ax = plt.subplots(figsize=(20, 10))
-
-# Add x-axis and y-axis.
-ax.plot(Y,
-           color='purple', label='real value')
-ax.plot(
-         inv_yhat,
-           label='Predictied')
-
-
+#plot the true valye vs. predicted value
 fig, ax = plt.subplots(figsize=(5, 4))
 
 ax.scatter( Y,inv_yhat, label='ilha1')  # Plot some data on the axes.
