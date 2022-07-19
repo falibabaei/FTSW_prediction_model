@@ -1,0 +1,11 @@
+#hyperparameters were selected by bayesian optimization
+seq_len=7#(number of lookback of the LSTM model for predicting FSTW)
+output_len#(number of days that LSTM model predict FSTW for them)
+n_out=1 #(number of variables we want to predict with LSTM model)
+Batch_size=40#50#40 #128
+
+Epoch=210
+lr= 0.003968#0.00025856#0.0003968 #2e-3
+decay= 0.003456#0.0003011 #0.0003456#1e-3
+hidden_units=158#190#158#256# #number of hidden neurons in LSTM layer 32,64,128,256,
+dropout_size=0.09313# 0.17521#0.09313
