@@ -16,11 +16,9 @@ from pickle import load
 
 from Some_usfull_classes import data_preprocessing, data_split,r_square
 
+import hyperparameters_FTSW as param
 register_matplotlib_converters()
 
-n_out=1
-seq_len=7
-output_len
 
 #open test set
 dir_='D:/SM_estimation_paper/2003_mean.csv'
