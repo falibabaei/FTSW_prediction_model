@@ -76,14 +76,10 @@ df1['eto']=np.round(inv_yhat,1)
 df1.to_csv('D:/SM_estimation_paper/2003_ETO.csv')
 
 #calculate the metrics
-print(np.sqrt(mean_squared_error(Y,inv_yhat)))
-y_mean=np.array([np.mean(Y) for i in range(len(Y))])
-mean_error=((mean_squared_error(Y,y_mean)))
 
-mse=((mean_squared_error(Y,inv_yhat)))
+rmse=rmse(Y,inv_yhat)
 
-r2=1-(mse/mean_error)
-print(r2)
+r2=r_square(Y,inv_yhat)
 
 
 
