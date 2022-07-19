@@ -16,7 +16,6 @@ from sklearn.model_selection import train_test_split
 
 
 import tensorflow as tf
-from tensorflow.keras import layers
 
 from Some_usfull_classes import data_preprocessing, data_split, r_square,rmse
 import LSTM_model
